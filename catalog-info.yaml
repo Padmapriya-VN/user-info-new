@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: padmapriyavedagiri.nagarajan.ext
+spec:
+  profile:
+    displayName: Padmapriya Vedagiri Nagarajan
+    email: padmapriyavedagiri.nagarajan.ext@bayer.com
+  memberOf: [team-a]

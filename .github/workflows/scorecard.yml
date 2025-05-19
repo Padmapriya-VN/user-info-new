@@ -38,7 +38,15 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${REPO}/dependabot/alerts?per_page=100")
 
-          COUNT=$(echo "$ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          # Check if response is an array (starts with [)
+          if echo "$ALERTS" | jq -e 'type=="array"' >/dev/null; then
+            COUNT=$(echo "$ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          else
+            echo "⚠️ Failed to fetch Dependabot alerts properly. Response was:"
+            echo "$ALERTS"
+            COUNT=0
+          fi
+
           echo "Found $COUNT open Dependabot alerts"
 
           if [ ! -f .backstage/scorecard.json ]; then

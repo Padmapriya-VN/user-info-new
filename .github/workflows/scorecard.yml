@@ -18,6 +18,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Create .backstage directory
+        run: mkdir -p .backstage
 
       - name: Run Scorecard in JSON format
         uses: ossf/scorecard-action@v2.4.1

@@ -2,13 +2,13 @@ name: Scorecard JSON Generator
 
 on:
   schedule:
-    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
   push:
     branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
-  contents: write  # Required to commit back changes
+  contents: write
 
 jobs:
   scorecard-json:
@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Create .backstage directory
         run: mkdir -p .backstage
 
@@ -27,12 +27,52 @@ jobs:
         with:
           results_file: .backstage/scorecard.json
           results_format: json
-          publish_results: false  # Don’t publish to public API
+          publish_results: false
+
+      - name: Fetch Dependabot alert count and update scorecard.json
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          REPO="${{ github.repository }}"
+          ALERTS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/dependabot/alerts?per_page=100")
+
+          COUNT=$(echo "$ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          echo "Found $COUNT open Dependabot alerts"
+
+          if [ ! -f .backstage/scorecard.json ]; then
+            echo '{}' > .backstage/scorecard.json
+          fi
+
+          jq --argjson count "$COUNT" '.dependabot_alerts = $count' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
+
+      - name: Compute and inject security_score
+        run: |
+          ALERT_COUNT=$(jq '.dependabot_alerts' .backstage/scorecard.json)
+
+          if [ "$ALERT_COUNT" -eq 0 ]; then
+            PENALTY=0
+          elif [ "$ALERT_COUNT" -le 5 ]; then
+            PENALTY=1
+          elif [ "$ALERT_COUNT" -le 10 ]; then
+            PENALTY=2
+          else
+            PENALTY=3
+          fi
+
+          SCORE_AVG=$(jq '[.checks[] | select(.name=="Vulnerabilities" or .name=="Token-Permissions" or .name=="Branch-Protection") | .score] | add / length' .backstage/scorecard.json)
+          if [ "$SCORE_AVG" = "null" ]; then SCORE_AVG=5; fi
+
+          FINAL_SCORE=$(echo "$SCORE_AVG - $PENALTY" | bc -l)
+          CLAMPED_SCORE=$(awk -v s="$FINAL_SCORE" 'BEGIN { if (s<0) print 0; else if (s>10) print 10; else printf "%.1f", s }')
+
+          jq --arg score "$CLAMPED_SCORE" '.security_score = ($score | tonumber)' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
 
       - name: Commit scorecard.json to repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .backstage/scorecard.json
-          git commit -m "Update OpenSSF scorecard.json [ci skip]" || echo "No changes"
+          git commit -m "Update OpenSSF scorecard with dependabot and security_score [ci skip]" || echo "No changes"
           git push

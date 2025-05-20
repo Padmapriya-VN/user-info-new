@@ -1,9 +1,9 @@
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: pardhu100
+  name: padmapriya-vn
 spec:
   profile:
-    displayName: Krishna
-    email: krishna.ext@bayer.com
+    displayName: Padmapriya 
+    email: padmapriyavedagiri.nagarajan.ext@bayer.com
   memberOf: [team-a]

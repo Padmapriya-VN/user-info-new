@@ -81,6 +81,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main  # ✅ Rebase local changes on top of remote
           git add .backstage/scorecard.json
-          git commit -m "Update OpenSSF scorecard with dependabot and security_score [ci skip]" || echo "No changes"
-          git push
+          git commit -m "Update OpenSSF scorecard with dependabot and security_score [ci skip]" || echo "No changes to commit"
+          git push origin main

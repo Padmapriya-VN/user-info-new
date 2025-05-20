@@ -61,25 +61,25 @@ jobs:
 
           jq --argjson count "$COUNT" '.dependabot_alerts = $count' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
 
-      - name: Compute and inject security_score
+      - name: Compute and inject security_score (based on 5 security checks)
         run: |
-          ALERT_COUNT=$(jq '.dependabot_alerts' .backstage/scorecard.json)
+          SECURITY_SCORE=$(jq '
+            (
+              [.checks[] |
+                select(.name == "Vulnerabilities" or
+                       .name == "Security-Policy" or
+                       .name == "SAST" or
+                       .name == "CI-Tests" or
+                       .name == "Dependency-Update-Tool")
+                | .score] as $scores
+              | if ($scores | length) == 0
+                then 0
+                else ($scores | add / ($scores | length))
+              end
+            )
+          ' .backstage/scorecard.json)
 
-          if [ "$ALERT_COUNT" -eq 0 ]; then
-            PENALTY=0
-          elif [ "$ALERT_COUNT" -le 5 ]; then
-            PENALTY=1
-          elif [ "$ALERT_COUNT" -le 10 ]; then
-            PENALTY=2
-          else
-            PENALTY=3
-          fi
-
-          SCORE_AVG=$(jq '[.checks[] | select(.name=="Vulnerabilities" or .name=="Token-Permissions" or .name=="Branch-Protection") | .score] | add / length' .backstage/scorecard.json)
-          if [ "$SCORE_AVG" = "null" ]; then SCORE_AVG=5; fi
-
-          FINAL_SCORE=$(echo "$SCORE_AVG - $PENALTY" | bc -l)
-          CLAMPED_SCORE=$(awk -v s="$FINAL_SCORE" 'BEGIN { if (s<0) print 0; else if (s>10) print 10; else printf "%.1f", s }')
+          CLAMPED_SCORE=$(awk -v s="$SECURITY_SCORE" 'BEGIN { if (s<0) print 0; else if (s>10) print 10; else printf "%.1f", s }')
 
           jq --arg score "$CLAMPED_SCORE" '.security_score = ($score | tonumber)' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
 

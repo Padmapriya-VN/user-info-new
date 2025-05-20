@@ -1,8 +1,8 @@
 {
-  "date": "2025-05-20T17:06:54Z",
+  "date": "2025-05-20T17:23:56Z",
   "repo": {
     "name": "github.com/Padmapriya-VN/user-info-new",
-    "commit": "07f0b0641f3189888633badb1f585cc193dff221"
+    "commit": "c6e0d3694b7bbf309cfb27545e331a0876e306bc"
   },
   "scorecard": {
     "version": "v5.1.1",
@@ -13,11 +13,21 @@
     {
       "details": null,
       "score": 10,
-      "reason": "no dangerous workflow patterns detected",
-      "name": "Dangerous-Workflow",
+      "reason": "no binaries found in the repo",
+      "name": "Binary-Artifacts",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dangerous-workflow",
-        "short": "Determines if the project's GitHub Action workflows avoid dangerous patterns."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#binary-artifacts",
+        "short": "Determines if the project has generated executable (binary) artifacts in the source repository."
+      }
+    },
+    {
+      "details": null,
+      "score": -1,
+      "reason": "no pull request found",
+      "name": "CI-Tests",
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#ci-tests",
+        "short": "Determines if the project runs tests before pull requests are merged."
       }
     },
     {
@@ -34,34 +44,22 @@
     },
     {
       "details": null,
-      "score": -1,
-      "reason": "no pull request found",
-      "name": "CI-Tests",
-      "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#ci-tests",
-        "short": "Determines if the project runs tests before pull requests are merged."
-      }
-    },
-    {
-      "details": [
-        "Warn: no pull requests merged into dev branch"
-      ],
       "score": 0,
-      "reason": "no SAST tool detected",
-      "name": "SAST",
+      "reason": "Found 0/20 approved changesets -- score normalized to 0",
+      "name": "Code-Review",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#sast",
-        "short": "Determines if the project uses static code analysis."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#code-review",
+        "short": "Determines if the project requires human code review before pull requests (aka merge requests) are merged."
       }
     },
     {
       "details": null,
       "score": 10,
-      "reason": "no binaries found in the repo",
-      "name": "Binary-Artifacts",
+      "reason": "no dangerous workflow patterns detected",
+      "name": "Dangerous-Workflow",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#binary-artifacts",
-        "short": "Determines if the project has generated executable (binary) artifacts in the source repository."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dangerous-workflow",
+        "short": "Determines if the project's GitHub Action workflows avoid dangerous patterns."
       }
     },
     {
@@ -77,13 +75,28 @@
       }
     },
     {
-      "details": null,
+      "details": [
+        "Warn: no pull requests merged into dev branch"
+      ],
       "score": 0,
-      "reason": "Found 0/18 approved changesets -- score normalized to 0",
-      "name": "Code-Review",
+      "reason": "no SAST tool detected",
+      "name": "SAST",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#code-review",
-        "short": "Determines if the project requires human code review before pull requests (aka merge requests) are merged."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#sast",
+        "short": "Determines if the project uses static code analysis."
+      }
+    },
+    {
+      "details": [
+        "Warn: topLevel 'contents' permission set to 'write': .github/workflows/scorecard.yml:11",
+        "Info: no jobLevel write permissions found"
+      ],
+      "score": 0,
+      "reason": "detected GitHub workflow tokens with excessive permissions",
+      "name": "Token-Permissions",
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#token-permissions",
+        "short": "Determines if the project's workflows follow the principle of least privilege."
       }
     },
     {
@@ -103,15 +116,14 @@
     },
     {
       "details": [
-        "Warn: topLevel 'contents' permission set to 'write': .github/workflows/scorecard.yml:11",
-        "Info: no jobLevel write permissions found"
+        "Warn: project does not have a license file"
       ],
       "score": 0,
-      "reason": "detected GitHub workflow tokens with excessive permissions",
-      "name": "Token-Permissions",
+      "reason": "license file not detected",
+      "name": "License",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#token-permissions",
-        "short": "Determines if the project's workflows follow the principle of least privilege."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#license",
+        "short": "Determines if the project has defined a license."
       }
     },
     {
@@ -140,6 +152,16 @@
       }
     },
     {
+      "details": null,
+      "score": 0,
+      "reason": "no effort to earn an OpenSSF best practices badge detected",
+      "name": "CII-Best-Practices",
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#cii-best-practices",
+        "short": "Determines if the project has an OpenSSF (formerly CII) Best Practices Badge."
+      }
+    },
+    {
       "details": [
         "Warn: no dependency update tool configurations found"
       ],
@@ -149,28 +171,6 @@
       "documentation": {
         "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dependency-update-tool",
         "short": "Determines if the project uses a dependency update tool."
-      }
-    },
-    {
-      "details": [
-        "Warn: project does not have a license file"
-      ],
-      "score": 0,
-      "reason": "license file not detected",
-      "name": "License",
-      "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#license",
-        "short": "Determines if the project has defined a license."
-      }
-    },
-    {
-      "details": null,
-      "score": 0,
-      "reason": "no effort to earn an OpenSSF best practices badge detected",
-      "name": "CII-Best-Practices",
-      "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#cii-best-practices",
-        "short": "Determines if the project has an OpenSSF (formerly CII) Best Practices Badge."
       }
     },
     {

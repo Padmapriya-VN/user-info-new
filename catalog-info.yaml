@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: padmapriyavedagiri.nagarajan.ext
+  name: padmapriya-vn
 spec:
   profile:
     displayName: Padmapriya Vedagiri Nagarajan

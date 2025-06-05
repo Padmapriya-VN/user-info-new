@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  security-events: read  # Required for CodeQL SARIF
+  actions: read
 
 jobs:
   scorecard-json:
@@ -34,57 +36,111 @@ jobs:
           results_file: .backstage/scorecard.json
           results_format: json
           publish_results: false
+        env:
+          GITHUB_AUTH_TOKEN: ${{ secrets.GH_PAT }}
 
-      - name: Fetch Dependabot alert count and update scorecard.json
+      - name: Fetch Security Alerts (Dependabot, Secret Scanning, CodeQL)
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           REPO="${{ github.repository }}"
-          ALERTS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+
+          echo "Fetching Dependabot Alerts..."
+          DEP_ALERTS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${REPO}/dependabot/alerts?per_page=100")
 
-          # Check if response is an array (starts with [)
-          if echo "$ALERTS" | jq -e 'type=="array"' >/dev/null; then
-            COUNT=$(echo "$ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          if echo "$DEP_ALERTS" | jq -e 'type == "array"' > /dev/null; then
+            DEP_COUNT=$(echo "$DEP_ALERTS" | jq '[.[] | select(.state=="open")] | length')
           else
-            echo "⚠️ Failed to fetch Dependabot alerts properly. Response was:"
-            echo "$ALERTS"
-            COUNT=0
+            echo "Dependabot not configured or not accessible. Defaulting to 0."
+            DEP_COUNT=0
           fi
 
-          echo "Found $COUNT open Dependabot alerts"
+          echo "Fetching Secret Scanning Alerts..."
+          SECRET_ALERTS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/secret-scanning/alerts?per_page=100")
 
-          if [ ! -f .backstage/scorecard.json ]; then
-            echo '{}' > .backstage/scorecard.json
+          if echo "$SECRET_ALERTS" | jq -e 'type == "array"' > /dev/null; then
+            SECRET_COUNT=$(echo "$SECRET_ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          else
+            echo "⚠️ Secret Scanning not configured or not accessible. Defaulting to 0."
+            SECRET_COUNT=0
           fi
 
-          jq --argjson count "$COUNT" '.dependabot_alerts = $count' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
+          echo "Fetching CodeQL Alerts..."
+          CODEQL_ALERTS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/code-scanning/alerts?per_page=100")
 
-      - name: Compute and inject security_score (based on 5 security checks)
+          if echo "$CODEQL_ALERTS" | jq -e 'type == "array"' > /dev/null; then
+            CODEQL_COUNT=$(echo "$CODEQL_ALERTS" | jq '[.[] | select(.state=="open")] | length')
+          else
+            echo "CodeQL not configured or not accessible. Defaulting to 0."
+            CODEQL_COUNT=0
+          fi
+
+          [ -f .backstage/scorecard.json ] || echo '{}' > .backstage/scorecard.json
+
+          jq --argjson dependabot "$DEP_COUNT" \
+             --argjson secret "$SECRET_COUNT" \
+             --argjson codeql "$CODEQL_COUNT" \
+            '.dependabot_alerts = $dependabot |
+             .secret_scanning_alerts = $secret |
+             .codeql_alerts = $codeql' \
+            .backstage/scorecard.json > .backstage/tmp && mv .backstage/tmp .backstage/scorecard.json
+
+      - name: Rename "score" to "default_ossf_score"
         run: |
-          SECURITY_SCORE=$(jq '
-            (
-              [.checks[] |
-                select(.name == "Vulnerabilities" or
-                       .name == "Security-Policy" or
-                       .name == "SAST" or
-                       .name == "CI-Tests" or
-                       .name == "Dependency-Update-Tool")
+          jq '.
+            | .default_ossf_score = .score
+            | del(.score)
+          ' .backstage/scorecard.json > .backstage/tmp && mv .backstage/tmp .backstage/scorecard.json  
+
+      - name: Compute and inject security_score with custom and default OSSF scores
+        run: |
+          # Compute custom OSSF score from selected checks
+          CUSTOM_SCORE=$(jq '
+              (
+                [.checks[] |
+                  select(.name == "Vulnerabilities" or
+                         .name == "Security-Policy" or
+                         .name == "SAST" or
+                         .name == "CI-Tests" or
+                         .name == "Dependency-Update-Tool")
                 | .score] as $scores
-              | if ($scores | length) == 0
-                then 0
-                else ($scores | add / ($scores | length))
-              end
-            )
-          ' .backstage/scorecard.json)
+                | if ($scores | length) == 0
+                  then 0
+                  else ($scores | add / ($scores | length))
+                end
+              )
+            ' .backstage/scorecard.json)
 
-          CLAMPED_SCORE=$(awk -v s="$SECURITY_SCORE" 'BEGIN { if (s<0) print 0; else if (s>10) print 10; else printf "%.1f", s }')
+          echo "🔎 custom_ossf_score = $CUSTOM_SCORE"
 
-          jq --arg score "$CLAMPED_SCORE" '.security_score = ($score | tonumber)' .backstage/scorecard.json > .backstage/tmp.json && mv .backstage/tmp.json .backstage/scorecard.json
+          jq --arg score "$CUSTOM_SCORE" '.custom_ossf_score = ($score | tonumber)' .backstage/scorecard.json > .backstage/tmp && mv .backstage/tmp .backstage/scorecard.json
 
-      - name: Commit scorecard.json to repo
+          # Read default OSSF score
+          DEFAULT_SCORE=$(jq '.default_ossf_score // 0' .backstage/scorecard.json)
+          echo "📌 default_ossf_score = $DEFAULT_SCORE"
+
+          # Read alert counts
+          DEP_ALERTS=$(jq '.dependabot_alerts // 0' .backstage/scorecard.json)
+          SEC_ALERTS=$(jq '.secret_scanning_alerts // 0' .backstage/scorecard.json)
+          CODEQL_ALERTS=$(jq '.codeql_alerts // 0' .backstage/scorecard.json)
+
+          # Calculate penalties (0.1 per alert)
+          PENALTIES=$(awk -v d="$DEP_ALERTS" -v s="$SEC_ALERTS" -v c="$CODEQL_ALERTS" 'BEGIN { print (d + s + c) * 0.1 }')
+          RAW_SCORE=$(awk -v base="$DEFAULT_SCORE" -v pen="$PENALTIES" 'BEGIN { print base - pen }')
+          FINAL_SCORE=$(awk -v s="$RAW_SCORE" 'BEGIN { if (s<0) print 0; else if (s>10) print 10; else printf "%.1f", s }')
+
+          echo "security_score = $FINAL_SCORE"
+
+          jq --arg score "$FINAL_SCORE" '.security_score = ($score | tonumber)' .backstage/scorecard.json > .backstage/tmp && mv .backstage/tmp .backstage/scorecard.json
+
+      - name: Commit scorecard.json
         run: |
           git add .backstage/scorecard.json
-          git commit -m "Update OpenSSF scorecard with dependabot and security_score [ci skip]" || echo "No changes to commit"
+          git commit -m "Update scorecard with secret scan, CodeQL, and final security score" || echo "No changes"
           git push origin main

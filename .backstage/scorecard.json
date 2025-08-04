@@ -1,24 +1,14 @@
 {
-  "date": "2025-07-28T03:42:29Z",
+  "date": "2025-08-04T03:52:23Z",
   "repo": {
     "name": "github.com/Padmapriya-VN/user-info-new",
-    "commit": "bc334bd1974ad9ff6041bb5c3cde5198827a5e26"
+    "commit": "729506aeb5f62756070f0bfde3cc894c1a28a340"
   },
   "scorecard": {
     "version": "v5.1.1",
     "commit": "cd152cb6742c5b8f2f3d2b5193b41d9c50905198"
   },
   "checks": [
-    {
-      "details": null,
-      "score": -1,
-      "reason": "no pull request found",
-      "name": "CI-Tests",
-      "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#ci-tests",
-        "short": "Determines if the project runs tests before pull requests are merged."
-      }
-    },
     {
       "details": null,
       "score": 10,
@@ -30,27 +20,13 @@
       }
     },
     {
-      "details": [
-        "Warn: Repository was created in last 90 days."
-      ],
-      "score": 0,
-      "reason": "project was created in last 90 days. please review its contents carefully",
-      "name": "Maintained",
+      "details": null,
+      "score": 10,
+      "reason": "no dangerous workflow patterns detected",
+      "name": "Dangerous-Workflow",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#maintained",
-        "short": "Determines if the project is \"actively maintained\"."
-      }
-    },
-    {
-      "details": [
-        "Warn: no GitHub/GitLab publishing workflow detected."
-      ],
-      "score": -1,
-      "reason": "packaging workflow not detected",
-      "name": "Packaging",
-      "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#packaging",
-        "short": "Determines if the project is published as a package that others can easily download, install, easily update, and uninstall."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dangerous-workflow",
+        "short": "Determines if the project's GitHub Action workflows avoid dangerous patterns."
       }
     },
     {
@@ -76,10 +52,20 @@
       }
     },
     {
+      "details": null,
+      "score": -1,
+      "reason": "no pull request found",
+      "name": "CI-Tests",
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#ci-tests",
+        "short": "Determines if the project runs tests before pull requests are merged."
+      }
+    },
+    {
       "details": [
+        "Info: topLevel 'actions' permission set to 'read': .github/workflows/scorecard.yml:13",
         "Warn: topLevel 'contents' permission set to 'write': .github/workflows/scorecard.yml:11",
         "Info: topLevel 'security-events' permission set to 'read': .github/workflows/scorecard.yml:12",
-        "Info: topLevel 'actions' permission set to 'read': .github/workflows/scorecard.yml:13",
         "Info: no jobLevel write permissions found"
       ],
       "score": 0,
@@ -106,25 +92,37 @@
       }
     },
     {
+      "details": [
+        "Warn: no GitHub/GitLab publishing workflow detected."
+      ],
+      "score": -1,
+      "reason": "packaging workflow not detected",
+      "name": "Packaging",
+      "documentation": {
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#packaging",
+        "short": "Determines if the project is published as a package that others can easily download, install, easily update, and uninstall."
+      }
+    },
+    {
       "details": null,
       "score": 10,
-      "reason": "no dangerous workflow patterns detected",
-      "name": "Dangerous-Workflow",
+      "reason": "30 commit(s) and 0 issue activity found in the last 90 days -- score normalized to 10",
+      "name": "Maintained",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dangerous-workflow",
-        "short": "Determines if the project's GitHub Action workflows avoid dangerous patterns."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#maintained",
+        "short": "Determines if the project is \"actively maintained\"."
       }
     },
     {
       "details": [
-        "Warn: no dependency update tool configurations found"
+        "Warn: project does not have a license file"
       ],
       "score": 0,
-      "reason": "no update tool detected",
-      "name": "Dependency-Update-Tool",
+      "reason": "license file not detected",
+      "name": "License",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dependency-update-tool",
-        "short": "Determines if the project uses a dependency update tool."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#license",
+        "short": "Determines if the project has defined a license."
       }
     },
     {
@@ -149,14 +147,14 @@
     },
     {
       "details": [
-        "Warn: no fuzzer integrations found"
+        "Warn: branch protection not enabled for branch 'main'"
       ],
       "score": 0,
-      "reason": "project is not fuzzed",
-      "name": "Fuzzing",
+      "reason": "branch protection not enabled on development/release branches",
+      "name": "Branch-Protection",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#fuzzing",
-        "short": "Determines if the project uses fuzzing."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#branch-protection",
+        "short": "Determines if the default and release branches are protected with GitHub's branch protection settings."
       }
     },
     {
@@ -171,26 +169,26 @@
     },
     {
       "details": [
-        "Warn: project does not have a license file"
+        "Warn: no fuzzer integrations found"
       ],
       "score": 0,
-      "reason": "license file not detected",
-      "name": "License",
+      "reason": "project is not fuzzed",
+      "name": "Fuzzing",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#license",
-        "short": "Determines if the project has defined a license."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#fuzzing",
+        "short": "Determines if the project uses fuzzing."
       }
     },
     {
       "details": [
-        "Warn: branch protection not enabled for branch 'main'"
+        "Warn: no dependency update tool configurations found"
       ],
       "score": 0,
-      "reason": "branch protection not enabled on development/release branches",
-      "name": "Branch-Protection",
+      "reason": "no update tool detected",
+      "name": "Dependency-Update-Tool",
       "documentation": {
-        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#branch-protection",
-        "short": "Determines if the default and release branches are protected with GitHub's branch protection settings."
+        "url": "https://github.com/ossf/scorecard/blob/cd152cb6742c5b8f2f3d2b5193b41d9c50905198/docs/checks.md#dependency-update-tool",
+        "short": "Determines if the project uses a dependency update tool."
       }
     },
     {
@@ -223,7 +221,7 @@
   "dependabot_alerts": 0,
   "secret_scanning_alerts": 0,
   "codeql_alerts": 0,
-  "default_ossf_score": 2.8,
+  "default_ossf_score": 3.6,
   "custom_ossf_score": 1.8,
-  "security_score": 2.8
+  "security_score": 3.6
 }

@@ -6,4 +6,6 @@ spec:
   profile:
     displayName: Padmapriya Vedagiri Nagarajan
     email: padmapriyavedagiri.nagarajan@bayer.com
-  memberOf: []
+  memberOf: [
+  "all","backstage-contributors", "fawkes-owner-non-prod-bay-open-project","fawkes-owner-non-prod-bay-dorametrics","fawkes-owner-prod-bay-devlake-prod"
+  ]
